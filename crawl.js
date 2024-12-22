@@ -44,6 +44,7 @@ async function crawlPage(baseURL, currentURL, pages) {
 
         //  recursively will obtain links 
         for (const nextURL of nextURLs) {
+            //  This is where the newly encountered URL is added to the pages object and its paired key is a 1
             pages = await crawlPage(baseURL, nextURL, pages)
         }
     } catch (err) {
