@@ -1,15 +1,33 @@
 const {JSDOM} = require('jsdom')
 
 
-async function crawlPage(currentURL) {
-    console.log(`actively crawling ${currentURL}`)
+async function crawlPage(baseURL, currentURL, pages) {
+
+    //  Since we don't want to crawl the entire internet, we
+    //  will limit our crawling to the baseURL
+
+    const baseURLObj = new URL(baseURL)
+    const currentURLObj = new URL(currentURL)
+
+    if (baseURLObj.hostname !== currentURLObj.hostname) {
+        return pages
+    }
+
+    const normalizeCurrentURL = normalizeURL(currentURL)
+
+    if (pages[normalizeCurrentURL] > 0) {
+        pages[normalizeCurrentURL]++
+        return pages
+    }
+
+    pages[normalizeCurrentURL] = 1
 
     try {
         const resp = await fetch(currentURL)
 
         if (resp.status > 399) {
             console.log(`error in fetch with status code: ${resp.status} on page ${currentURL}`)
-            return 
+            return pages
             //  400 = client error 
             //  500 = server error 
         }
@@ -17,14 +35,23 @@ async function crawlPage(currentURL) {
         const contentType = resp.headers.get("content-type")
         if (!contentType.includes("text/html")) {
             console.log(`Non html response, content-type: ${contentType}, on page ${currentURL}`)
-            return 
+            return pages
         }
         //  checks to see that the actual content is HTML
-        console.log(await resp.text())
+        const htmlBody = await resp.text()
+
+        const nextURLs = getURLsFromHTML(htmlBody, baseURL)
+
+        //  recursively will obtain links 
+        for (const nextURL of nextURLs) {
+            pages = await crawlPage(baseURL, nextURL, pages)
+        }
     } catch (err) {
         console.log(`error in fetch: ${err.message}, on page ${currentURL}`)
     }
     
+    console.log(`actively crawling ${currentURL}`)
+    return pages
 }
 
 function getURLsFromHTML(htmlBody, baseURL) {
@@ -53,7 +80,6 @@ function getURLsFromHTML(htmlBody, baseURL) {
         }
 
     }
-    console.log(urls)
     return urls
  
 }
