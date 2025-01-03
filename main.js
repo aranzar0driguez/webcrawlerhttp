@@ -10,6 +10,7 @@
 
 const { crawlPage } = require(`./crawl.js`)
 const { printReport } = require(`./report.js`)
+const { fetchPartOfSpeech } = require(`./wordfreq.js`)
 
 async function main() {
     if (process.argv.length < 3) {
@@ -28,7 +29,11 @@ async function main() {
     const pages = await crawlPage(baseURL, baseURL, {}, {})
     printReport(pages)
 
-    
+  
+
+    const word3 = "a"
+    fetchPartOfSpeech(word3)
+
 
 }
 
