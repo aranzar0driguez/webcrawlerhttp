@@ -25,9 +25,6 @@ test('sortPages', () => {
         'https://wagslane.dev/path4': 9,
         'https://wagslane.dev/path5': 10
 
-
-
-
     }
     const actual = sortPages(input)
     const expected = [

@@ -1,7 +1,7 @@
 const {JSDOM} = require('jsdom')
 
 
-async function crawlPage(baseURL, currentURL, pages) {
+async function crawlPage(baseURL, currentURL, pages, words) {
 
     //  Since we don't want to crawl the entire internet, we
     //  will limit our crawling to the baseURL
@@ -15,12 +15,21 @@ async function crawlPage(baseURL, currentURL, pages) {
 
     const normalizeCurrentURL = normalizeURL(currentURL)
 
-    if (pages[normalizeCurrentURL] > 0) {
-        pages[normalizeCurrentURL]++
+
+    //  Initializes the key with a default value if it doesn't exist 
+    if (!pages[normalizeCurrentURL]) {
+        pages[normalizeCurrentURL] = {
+            count: 1,
+            wordFreq: {} 
+        }
+    //  If we have already crawled this URL... let's go ahead and simply increase its value
+    } else if (pages[normalizeCurrentURL].count > 0) {
+
+        pages[normalizeCurrentURL].count++
         return pages
     }
 
-    pages[normalizeCurrentURL] = 1
+     
 
     try {
         const resp = await fetch(currentURL)
@@ -40,19 +49,54 @@ async function crawlPage(baseURL, currentURL, pages) {
         //  checks to see that the actual content is HTML
         const htmlBody = await resp.text()
 
-        const nextURLs = getURLsFromHTML(htmlBody, baseURL)
+        //  Returns an array of words for a given URL  + intializes that value 
+        const wordsObj = getWordFreqCountFromHTML(htmlBody)
+        pages[normalizeCurrentURL].wordFreq = wordsObj
 
+        const nextURLs = getURLsFromHTML(htmlBody, baseURL)
+        
         //  recursively will obtain links 
         for (const nextURL of nextURLs) {
-            //  This is where the newly encountered URL is added to the pages object and its paired key is a 1
-            pages = await crawlPage(baseURL, nextURL, pages)
+
+            pages = await crawlPage(baseURL, nextURL, pages, words)
+
         }
+
     } catch (err) {
         console.log(`error in fetch: ${err.message}, on page ${currentURL}`)
     }
     
-    console.log(`actively crawling ${currentURL}`)
     return pages
+}
+
+function getWordFreqCountFromHTML(htmlBody) {
+    
+    const wordFreq = {} //  Initialize an empty Object for word frequencies 
+
+    const dom = new JSDOM(htmlBody)
+    const pElements = dom.window.document.querySelectorAll('p') //  returns a list of p elements 
+    
+    //  Iterates through each of the p elements 
+    for (const element of pElements) {
+
+        const text = element.textContent // extracts the text content from the p element 
+        const wordsArray = text.split(" ") //This splits the string into an array of words 
+
+        //  Iterates through the text within a single given p element 
+        for (const word of wordsArray) {
+
+            //  removes the punctuation and changes the entire word into lowercase form 
+            const normalizedWord = word.toLowerCase().replace(/[^\w]/g, '');
+
+            if (wordFreq[normalizedWord] > 0) {
+                wordFreq[normalizedWord]++
+            } else {
+                wordFreq[normalizedWord] = 1
+            }
+        }
+
+    }
+    return wordFreq
 }
 
 function getURLsFromHTML(htmlBody, baseURL) {
@@ -79,11 +123,12 @@ function getURLsFromHTML(htmlBody, baseURL) {
                 console.log(`error with absolute URL: ${err.message}`)
             }
         }
-
     }
+
     return urls
  
 }
+
 function normalizeURL(urlString) {
     const urlObj = new URL(urlString)
     const hostPath = `${urlObj.hostname}${urlObj.pathname}`
