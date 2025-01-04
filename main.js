@@ -29,11 +29,6 @@ async function main() {
     const pages = await crawlPage(baseURL, baseURL, {}, {})
     printReport(pages)
 
-  
-
-    const word3 = "a"
-    fetchPartOfSpeech(word3)
-
 
 }
 

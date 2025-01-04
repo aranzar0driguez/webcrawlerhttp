@@ -1,4 +1,5 @@
 const {JSDOM} = require('jsdom')
+const puppeteer = require('puppeteer');
 
 
 async function crawlPage(baseURL, currentURL, pages, words) {
@@ -29,8 +30,6 @@ async function crawlPage(baseURL, currentURL, pages, words) {
         return pages
     }
 
-     
-
     try {
         const resp = await fetch(currentURL)
 
@@ -46,13 +45,22 @@ async function crawlPage(baseURL, currentURL, pages, words) {
             console.log(`Non html response, content-type: ${contentType}, on page ${currentURL}`)
             return pages
         }
-        //  checks to see that the actual content is HTML
-        const htmlBody = await resp.text()
+
+        //  Launches pupeteer 
+        const browser = await puppeteer.launch()
+        const page = await browser.newPage()
+
+        await page.goto(currentURL, { waitUntil: 'domcontentloaded' });
+
+        //  Extracts the html content of the page 
+        const htmlBody = await page.content()
+
+        await browser.close()
 
         //  Returns an array of words for a given URL  + intializes that value 
         const wordsObj = getWordFreqCountFromHTML(htmlBody)
         pages[normalizeCurrentURL].wordFreq = wordsObj
-
+        
         const nextURLs = getURLsFromHTML(htmlBody, baseURL)
         
         //  recursively will obtain links 
@@ -66,6 +74,7 @@ async function crawlPage(baseURL, currentURL, pages, words) {
         console.log(`error in fetch: ${err.message}, on page ${currentURL}`)
     }
     
+    console.log(`actively crawling ${currentURL}`)
     return pages
 }
 
@@ -107,6 +116,7 @@ function getURLsFromHTML(htmlBody, baseURL) {
 
     for (const linkElement of linkElements) {
 
+        //  If the href element starts with /... go ahead and add the base URL to it 
         if (linkElement.href.slice(0, 1) === '/') {
             try {
                 const urlObj = new URL(`${baseURL}${linkElement.href}`)
@@ -115,12 +125,24 @@ function getURLsFromHTML(htmlBody, baseURL) {
                 console.log(`error with relative URL: ${err.message}`)
             }
             
-        } else {
+        } else if (linkElement.href.slice(0,2) == '..') {
             try {
-                const urlObj = new URL(linkElement.href)
+                //  Remove the first two dots 
+                const sliceURL = linkElement.href.slice(2)
+                const urlObj = new URL(`${baseURL}${sliceURL}`)
+                
                 urls.push(urlObj.href)
             } catch (err) {
-                console.log(`error with absolute URL: ${err.message}`)
+                console.log(`error turning the ../ URL into an obj ${err.message}`)
+            }
+        }
+        
+        else {
+            try {
+                const urlObj = new URL(linkElement)
+                urls.push(urlObj.href)
+            } catch (err) {
+                console.log(`error with absolute URL: ${err.message} ${linkElement.href}`)
             }
         }
     }

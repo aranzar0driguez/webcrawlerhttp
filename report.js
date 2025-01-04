@@ -1,3 +1,4 @@
+const { fetchPartOfSpeech } = require("./wordfreq");
 
 function printReport(pages) {
     console.log("==================REPORT==================")
@@ -28,18 +29,35 @@ function printReport(pages) {
 function sortWordFreq(words) {
     //  Concerts the wordFreq into an array before iterating through it 
     const wordArray = Object.entries(words)
-
+    
     //  Sorts based on frequency 
     wordArray.sort((a, b) => { //a, b represents two elements in the array (word, count)
 
-        return b[1] - a[1] //   This accesses the second element of each array 
+        return a[1] - b[1] //   Returns in ascending order smallest -> largest 
     })
 
-    //  If the first element is of X part of of speech, it removes it and goes to the next ... it will keeping removing until the top 5 are a specific POS
-    
+    var numOfWords = 0
 
-    return wordArray.slice(0, 5)
+    if (wordArray.length < 5) {
+        return wordArray
+    }
+
+    for (let i = wordArray.length - 1; i >= 0; i--) {
+
+        const [word, freq] = wordArray[i]
+        //const pos = fetchPartOfSpeech(word)
+
+        if (word.length < 3) {
+            wordArray.splice(i, 1)
+        } else {
+            numOfWords++
+            if (numOfWords > 4) break; //   Exits loop once it has found at least 5 
+        }
+    }
+    
+    return wordArray.slice(-5).reverse()
 }
+
 function sortPages(pages) {
     //  Converts it into an array 
     pagesArray = Object.entries(pages)
