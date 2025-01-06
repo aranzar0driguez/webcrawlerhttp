@@ -7,6 +7,7 @@ async function crawlPage(baseURL, currentURL, pages) {
     const baseURLObj = new URL(baseURL)
     const currentURLObj = new URL(currentURL)
 
+    //  Prevents us from crawling websites outside our baseURL
     if (baseURLObj.hostname !== currentURLObj.hostname) {
         return pages
     }
@@ -17,7 +18,12 @@ async function crawlPage(baseURL, currentURL, pages) {
     if (pages[normalizeCurrentURL]) return pages
 
     console.log(`actively crawling ${currentURL}`)
-    pages[normalizeCurrentURL] =  true
+
+    pages[normalizeCurrentURL] = {
+        count: 1,
+        externalURL: []
+    }
+   
 
     try {
         const resp = await fetch(currentURL)
@@ -45,19 +51,25 @@ async function crawlPage(baseURL, currentURL, pages) {
 
         await browser.close()       
         
-
         const nextURLs = getURLsFromHTML(htmlBody, baseURL)
 
-        
-        //  recursively will obtain links 
+        //  This is the list of all the URLs 
         for (const nextURL of nextURLs) {
+            
+            const nextURLObj = new URL(nextURL)
 
+            //  If the URL is an external URL... go ahead and add it 
+            if (baseURLObj.hostname !== nextURLObj.hostname) {
+
+                console.log(`This url does not match ${baseURLObj.hostname} --- ${nextURLObj.href} -- ${normalizeCurrentURL}`)
+                //  We are using push because this appends an URL to the end of the array
+                //  if we simply assign = , it will replace the previously added array 
+                pages[normalizeCurrentURL].externalURL.push(nextURLObj.href); // Use .push() to add to the array
+
+            }
 
             pages = await crawlPage(baseURL, nextURL, pages)
-
         }
-
-
 
     } catch (err) {
         console.log(`error in fetch: ${err.message}, on page ${currentURL}`)
@@ -73,7 +85,6 @@ function getURLsFromHTML(htmlBody, baseURL) {
     const linkElements = dom.window.document.querySelectorAll('a')
 
     for (const linkElement of linkElements) {
-
 
         //  If the href element starts with /... go ahead and add the base URL to it 
         if (linkElement.href.slice(0, 1) === '/') {
