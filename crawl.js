@@ -1,6 +1,6 @@
 const {JSDOM} = require('jsdom')
-const puppeteer = require('puppeteer');
-
+var TurndownService = require('turndown')
+//const puppeteer = require('puppeteer');
 
 async function crawlPage(baseURL, currentURL, pages) {
 
@@ -15,13 +15,19 @@ async function crawlPage(baseURL, currentURL, pages) {
     const normalizeCurrentURL = normalizeURL(currentURL)
 
     //  Needs to return valid pages so that it can check what URLs are already in it 
-    if (pages[normalizeCurrentURL]) return pages
+    if (pages[normalizeCurrentURL]) {
+        pages[normalizeCurrentURL].count ++
+        return pages
+    }
 
     console.log(`actively crawling ${currentURL}`)
 
     pages[normalizeCurrentURL] = {
         count: 1,
-        externalURL: []
+        externalURL: [], //  Keeping track of how many times this external URL
+        titles: [], //   Titles, header, address, 
+        headers: [],
+        meta: [] 
     }
    
 
@@ -40,18 +46,16 @@ async function crawlPage(baseURL, currentURL, pages) {
             return pages
         }
 
-        //  Launches pupeteer 
-        const browser = await puppeteer.launch()
-        const page = await browser.newPage()
-
-        await page.goto(currentURL, { waitUntil: 'domcontentloaded' });
-
-        //  Extracts the html content of the page 
-        const htmlBody = await page.content()
-
-        await browser.close()       
+        const htmlBody = await resp.text()    
         
         const nextURLs = getURLsFromHTML(htmlBody, baseURL)
+        const titles = getElementFromHTML(htmlBody, normalizeCurrentURL, 'title')
+        const headers = getElementFromHTML(htmlBody, normalizeCurrentURL, 'h1, h2, h3, h4, h5, h6')
+        const metaData = getElementFromHTML(htmlBody, normalizeCurrentURL, 'meta[name="description"], meta[property="og:description"]')
+
+        pages[normalizeCurrentURL].titles = titles
+        pages[normalizeCurrentURL].headers = headers
+        pages[normalizeCurrentURL].meta = metaData
 
         //  This is the list of all the URLs 
         for (const nextURL of nextURLs) {
@@ -61,10 +65,9 @@ async function crawlPage(baseURL, currentURL, pages) {
             //  If the URL is an external URL... go ahead and add it 
             if (baseURLObj.hostname !== nextURLObj.hostname) {
 
-                console.log(`This url does not match ${baseURLObj.hostname} --- ${nextURLObj.href} -- ${normalizeCurrentURL}`)
-                //  We are using push because this appends an URL to the end of the array
-                //  if we simply assign = , it will replace the previously added array 
-                pages[normalizeCurrentURL].externalURL.push(nextURLObj.href); // Use .push() to add to the array
+                if (nextURLObj.protocol.startsWith("http")) {
+                    pages[normalizeCurrentURL].externalURL.push(nextURLObj.href); // Use .push() to add to the array
+                }
 
             }
 
@@ -91,6 +94,7 @@ function getURLsFromHTML(htmlBody, baseURL) {
             try {
 
                 const urlObj = new URL(`${baseURL}${linkElement.href}`)
+                
                 urls.push(urlObj.href)
 
             } catch (err) {
@@ -127,19 +131,55 @@ function getURLsFromHTML(htmlBody, baseURL) {
  
 }
 
+function getElementFromHTML(htmlBody, currentURL, querySelectorElement) {
+    
+    const elementArray = []
+    const dom = new JSDOM(htmlBody)
+    const elements = dom.window.document.querySelectorAll(querySelectorElement)
+
+    if (querySelectorElement !== 'meta[name="description"], meta[property="og:description"]') {
+        for (const element of elements) {
+            //console.log(`One of the title element for ${currentURL} is ${title.textContent}`)
+            elementArray.push(element.textContent)
+        }
+    } else {
+        
+        for (const element of elements) {
+
+            elementArray.push(element.content)
+
+        }
+
+    }
+
+    return elementArray
+
+} 
+
 function normalizeURL(urlString) {
     const urlObj = new URL(urlString)
     const hostPath = `${urlObj.hostname}${urlObj.pathname}`
+    
     if (hostPath.length > 0 && hostPath.slice(-1) === '/') {
         return hostPath.slice(0, -1)
     } 
     return hostPath
     
 }
+
+// function convertIntoMarkDown(htmlBody) {
+//     var turndownService = new TurndownService()
+//     var markdown = turndownService.turndown(htmlBody)
+//     console.log(markdown)
+
+//     //return markdown
+// }
+
 //  Makes the function above available to other js files
 //  That may need to import it 
 module.exports = {
     normalizeURL,
     getURLsFromHTML,
-    crawlPage
+    crawlPage,
+    getElementFromHTML
 }
