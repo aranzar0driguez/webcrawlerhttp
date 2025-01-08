@@ -65,7 +65,7 @@ app.post('/crawl', async (req, res)=> {
         }
 
         const crawlResults = await crawlWebsite(url)
-        const urlsArray = Object.entries(returnJSONReport(crawlResults))
+        const urlsArray = returnJSONReport(crawlResults)
 
         //  Insert the info the in query 
         const insertQuery = `
@@ -75,15 +75,7 @@ app.post('/crawl', async (req, res)=> {
         //  await client.query(insertQuery, )
         //  Consider moving this to its own function: 
 
-        //const pagesArray = Object.entries(crawlResults)
-
-        // const urlLink = pagesArray[0][0]
-
-        const urlLink = urlsArray[0][0]
-
-        console.log(urlLink)
-
-        res.json({ success: true, url: urlsArray})
+        res.json({ success: true, urls: urlsArray})
 
     } catch (error){
         res.status(500).json({ error: error.message })

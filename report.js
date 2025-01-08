@@ -36,31 +36,23 @@ function reportElementFormat(noElement, elementPresent, elementArray) {
 }
 
 function returnJSONReport(pages) {
-    const urls = {}
+    const urls = []
 
     pagesArray = Object.entries(pages)
 
-    for (const page of pagesArray) {
+    for (const [base_url, pageData] of pagesArray) {
+        const { externalURL, titles, headers, meta } = pageData;
 
-        const currentURL = page[0]
-        const {count, externalURL, titles, headers, meta} = page[1]
-
-        externalURLArray = Object.entries(externalURL)
-        titlesArray = Object.entries(titles)
-        headersArray = Object.entries(headers)
-        metaArray = Object.entries(meta)
-
-        urls[currentURL] = {
-            externalURL: externalURLArray,
-            title_tags: titlesArray, //  Keeping track of how many times this external URL
-            header_tags: headersArray, //   Titles, header, address, 
-            meta_tags: metaArray
-        }
-
-        
+        urls.push({
+            base_url,               // Use the URL string
+            externalURL,       // Array of external URLs
+            title_tags: titles,   // Titles
+            header_tags: headers, // Headers
+            meta_tags: meta       // Meta tags
+        });
     }
 
-    return urls
+    return  urls 
 }
 
 module.exports = {
