@@ -1,16 +1,14 @@
-
-/*
-    Note to self: 
-
-    The first argument to any program is always the name of the program (node.js)
-    The second argument is the entry point file
-    Third argument is hte actual argument inputted
-    
-*/
-
 const { crawlPage } = require(`./crawl.js`)
 const { printReport } = require(`./report.js`)
 
+//  Export crawLogic 
+async function crawlWebsite(baseURL) {
+    console.log(`starting crawl of ${baseURL}`)
+    const pages = await crawlPage(baseURL, baseURL, {})
+    return pages
+}
+
+//  CLI functionality 
 async function main() {
     if (process.argv.length < 3) {
         console.log("no website provided")
@@ -30,4 +28,11 @@ async function main() {
 
 }
 
-main()
+//  Checks to see if the line is being run directly or imported as a module
+//  By another file 
+
+if (require.main === module) {
+    main()
+}
+
+module.exports = { crawlWebsite }

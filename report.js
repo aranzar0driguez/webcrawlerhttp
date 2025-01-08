@@ -1,5 +1,3 @@
-//const { headersArray } = require("puppeteer")
-
 function printReport(pages) {
     console.log("==================REPORT==================")
     pagesArray = Object.entries(pages)
@@ -37,7 +35,35 @@ function reportElementFormat(noElement, elementPresent, elementArray) {
     }
 }
 
+function returnJSONReport(pages) {
+    const urls = {}
+
+    pagesArray = Object.entries(pages)
+
+    for (const page of pagesArray) {
+
+        const currentURL = page[0]
+        const {count, externalURL, titles, headers, meta} = page[1]
+
+        externalURLArray = Object.entries(externalURL)
+        titlesArray = Object.entries(titles)
+        headersArray = Object.entries(headers)
+        metaArray = Object.entries(meta)
+
+        urls[currentURL] = {
+            externalURL: externalURLArray,
+            title_tags: titlesArray, //  Keeping track of how many times this external URL
+            header_tags: headersArray, //   Titles, header, address, 
+            meta_tags: metaArray
+        }
+
+        
+    }
+
+    return urls
+}
+
 module.exports = {
     printReport,
-    reportElementFormat
+    returnJSONReport
 }
