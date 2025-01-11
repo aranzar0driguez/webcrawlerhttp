@@ -66,16 +66,26 @@ app.post('/crawl', async (req, res)=> {
 
         const crawlResults = await crawlWebsite(url)
         const urlsArray = returnJSONReport(crawlResults)
+        rootURL = urlsArray[0]['base_url']
+        randomNum = 1
 
         //  Insert the info the in query 
         const insertQuery = `
-            insert into 
+           INSERT INTO webpages(
+	        request_id, sub_url, root_url)
+	        VALUES (${randomNum}, '${rootURL}', '${rootURL}')
         `
 
-        //  await client.query(insertQuery, )
+        client.query(insertQuery, (err, result)=>{
+            if(!err) {
+                res.send('Insertion was successful')
+            } else {
+                console.log(err.message)
+            }
+        })
         //  Consider moving this to its own function: 
-
-        res.json({ success: true, urls: urlsArray})
+        client.end
+        // res.json({ success: true, urls: urlsArray})
 
     } catch (error){
         res.status(500).json({ error: error.message })
