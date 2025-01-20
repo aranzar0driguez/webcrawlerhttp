@@ -52,7 +52,9 @@ function returnJSONReport(pages) {
         });
     }
 
-    return  urls 
+    const rootURL = urls[0]['base_url']
+
+    return { urlsArray: urls, rootURL: rootURL }
 }
 
 module.exports = {

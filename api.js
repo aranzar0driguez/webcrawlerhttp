@@ -4,8 +4,7 @@ const { crawlWebsite } = require('./main.js')
 const { returnJSONReport } = require(`./report.js`)
 
 const app = express()   //  Creates the server 
-const bodyParser = require('body-parser')
-app.use(bodyParser.json())
+app.use(express.json()) //converts body to JSON
 
 app.listen(3300, ()=> {
     console.log("Server is now listening at port 3300")
@@ -15,43 +14,34 @@ client.connect()
 
 const queries = {
 
-    insertWebpage: `
-        INSERT INTO webpages(
-	        request_id, sub_url)
-	        VALUES ($1, $2::text);`,
-
-    insertExternalUrls: `
-        INSERT INTO external_urls(
-            request_id, base_url, external_urls)
-            VALUES ($1, $2::text, $3::text[]);`,
-
-    insertTags: `
-        INSERT INTO tags(
-            request_id, base_url, title_tags, header_tags, meta_tags)
-            VALUES ($1, $2::text, $3::text[], $4::text[], $5::text[]);`,
+    insertWebpageInfo: `
+        INSERT INTO webpage_info(
+	        request_id, root_url, base_url, external_urls, title_tags, header_tags, meta_tags)
+	        VALUES ($1, $2::text, $3::text, $4::text[], $5::text[], $6::text[], $7::text[]);`,
 
     insertRequest: `
         INSERT INTO requests(
             request_id, root_url)
-            VALUES ($1, $2::text)
+            VALUES ($1, $2::text[])
+    `,
+
+    selectRequest: `
+        SELECT * FROM requests WHERE request_id=$1
     `
 }
 
-
-async function insertURLData(client, urlInfo, reqID) {
+//  Pushes data into SQL
+async function insertURLData(client, urlInfo, rootURL, reqID) {
     
-    const webPageValues = [reqID, urlInfo['base_url']]
-    const externalURLsValues = [reqID, urlInfo['base_url'], urlInfo['externalURL']]
-    const insertTagsValues = [reqID, urlInfo['base_url'], urlInfo['title_tags'], urlInfo['header_tags'], urlInfo['meta_tags']]
+    const webpageInfoValues = [reqID, rootURL, urlInfo['base_url'], urlInfo['externalURL'], urlInfo['title_tags'], urlInfo['header_tags'], urlInfo['meta_tags']]
 
     try {
         // If the query does not fully execute, it will prevent the whole query from being sent 
-        await client.query('BEGIN') 
-        await client.query(queries.insertWebpage, webPageValues)
-        await client.query(queries.insertExternalUrls, externalURLsValues)
-        await client.query(queries.insertTags, insertTagsValues)
+        await client.query('BEGIN')
+        await client.query(queries.insertWebpageInfo, webpageInfoValues)
         await client.query('COMMIT')
         return true
+
     } catch (error) {
         await client.query('ROLLBACK')
         throw error
@@ -59,67 +49,103 @@ async function insertURLData(client, urlInfo, reqID) {
 }
 
 
-app.get('/crawl/:request_id', (req, res)=> {
 
-    const requestId = req.params.request_id
+app.get('/crawl/:request_id', async (req, res)=> {
 
-    if (!requestId) {
+    const requestID = req.params.request_id
+
+    if (!requestID) {
         return res.status(400).json({
-            error: 'request_id is required',
+            error: 'Request_id is required',
             success: false
         })
     }
 
     try {
 
-        query = `
-            SELECT * FROM external_urls where request_id=${requestId};
-        `
-        client.query()
-    } catch (err) {
+        await client.query(queries.selectRequest, [requestID], (err, result)=> {
+            if (!err) {
+                return res.status(400).json({
+                    message: 'Your query has been successful',
+                    result: result,
+                    success: true
+                })
+            }
+        })
 
+    } catch (err) {
+        return res.status(400).json({
+            error: 'Invalid Request ID',
+            success: false
+        })
     }
 
 })
 
 //  Detects whether the endpoint was successfull 
 app.post('/crawl', async (req, res)=> {
-        const { url } = req.body
+        const { urls, storeResults } = req.body
+        // let validURLS
+        let crawlResultsArray = [] //   Stores the results of the crawl 
+        let urlCrawlFinishedArray = []
 
-        if (!url) {
+        //  Ensures request body is complete 
+        if (!urls || storeResults == null) {
             return res.status(400).json({ 
-                error: 'URL is required',
+                error: 'URL and storeResults are both required',
                 success: false
             })
         }
 
-        const crawlResults = await crawlWebsite(url)
-        const urlsArray = returnJSONReport(crawlResults)
-        const rootURL = urlsArray[0]['base_url']
-        const reqID = Math.floor(Math.random() * 1000000)
-  
-        //  Adds the request into the 
-        const requestValues = [reqID, rootURL]
-        await client.query(queries.insertRequest, requestValues)
-
+        //  Ensures a valid URL was inputted 
         try {
-            for (const urlInfo of urlsArray) {
-                //Change this from base_url -> sub_url
-                await insertURLData(client, urlInfo, reqID)
+            for (const url of urls) {
+                const validURL = new URL(url)
+                const crawlResults = await crawlWebsite(validURL)
+                crawlResultsArray.push(crawlResults)
             }
-
-            return res.status(200).json({
-                message: 'All URLS processed successfully',
-                requestID: `Your request ID is: ${reqID}. Please save this for future data retrieval of your crawl results.`,
-                success: true
-            })
-
         } catch (error) {
-            return res.status(500).json({
-                error: error.message,
+            return res.status(400).json({
+                error: 'There is an invalid URL in your urls parameter!',
                 success: false
             })
+        }      
+        
+        //  If the user would like to store the results 
+        const reqID = Math.floor(Math.random() * 1000000)
+        
+        if (storeResults) {
+            //  The urls object MUST be an array of URLS
+            await client.query(queries.insertRequest, [reqID, urls])
         }
+
+        for (const crawlResult of crawlResultsArray) {
+
+            const { urlsArray, rootURL } = returnJSONReport(crawlResult)            
+            urlCrawlFinishedArray.push(urlsArray)
+            
+            try {
+                if (storeResults) {
+                    for (const urlInfo of urlsArray) {
+                        //Change this from base_url -> sub_url
+                        await insertURLData(client, urlInfo, rootURL ,reqID) //  For now, this doesn't do anything 
+                    }
+                }
+
+            } catch (error) {
+                return res.status(500).json({
+                    error: error.message,
+                    success: false
+                })
+            }
+        }
+
+        return res.status(200).json({
+            message: 'All URLS processed successfully!',
+            requestID: storeResults ? `Your request ID is: ${reqID}. Please save this for future data retrieval of your crawl results.` : `Your results were not stored in our database.`,
+            success: true,
+            urlArray: urlCrawlFinishedArray
+        })
     
 })
 
