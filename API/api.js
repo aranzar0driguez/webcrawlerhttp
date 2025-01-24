@@ -2,7 +2,7 @@ const client = require('./connection.js')
 const express = require('express');
 const { crawlWebsite } = require('../main.js')
 const { returnJSONReport } = require(`../report.js`)
-const { insertURLData, queries } = require('./queries.js');
+const { insertURLData, queries, deleteData } = require('./queries.js');
 const { normalizeURL } = require('../crawl.js');
 
 const app = express()   //  Creates the server 
@@ -13,6 +13,32 @@ app.listen(3300, ()=> {
 })
 
 client.connect()
+
+app.delete('/crawl/:request_id', async (req, res) => {
+
+    const requestID = req.params.request_id;
+
+    if (!requestID) {
+        return res.status(400).json({
+            error: 'request_id is required'
+        })
+    }
+    try {
+        deleteData(client, requestID);
+        
+        return res.status(200).json({
+            message: `You have successfully deleted your query for requestID: ${requestID}`,
+            success: true
+        })
+
+    } catch (err) {
+        return res.status(400).json({
+            error: err,
+            success: false
+        })
+    }
+
+})
 
 app.get('/crawl/:request_id', async (req, res)=> {
 

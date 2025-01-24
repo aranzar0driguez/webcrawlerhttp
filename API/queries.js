@@ -8,8 +8,7 @@ const queries = {
     insertRequest: `
         INSERT INTO requests(
             request_id, root_url)
-            VALUES ($1, $2::text[])
-    `,
+            VALUES ($1, $2::text[])`,
 
     //  Return JSON object (of the URL crawled info data) based on the given request_id 
     returnWebpageJSONObject: `
@@ -32,7 +31,13 @@ const queries = {
         )
         FROM requests r,
         LATERAL unnest(r.root_url) AS root
-        WHERE r.request_id = $1;`
+        WHERE r.request_id = $1;`,
+
+    deleteWebpageInfo: `
+        DELETE FROM webpage_info WHERE request_id=$1;`,
+
+    deleteRequests: `
+        DELETE FROM requests WHERE request_id=$1;`
 }
 
 //  Pushes data into SQL
@@ -53,4 +58,11 @@ async function insertURLData(client, urlInfo, rootURL, reqID) {
     }
 }
 
-module.exports = { insertURLData, queries }
+async function deleteData(client, requestID) {
+        await client.query('BEGIN')
+        await client.query(queries.deleteWebpageInfo, [requestID]),
+        await client.query(queries.deleteRequests, [requestID]),
+        await client.query('COMMIT')
+}
+
+module.exports = { insertURLData, queries, deleteData }
