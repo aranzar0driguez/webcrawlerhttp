@@ -49,11 +49,10 @@ app.get('/crawl/:request_id', async (req, res)=> {
 //  Detects whether the endpoint was successfull 
 app.post('/crawl', async (req, res)=> {
         const { urls, storeResults } = req.body
-        // let validURLS
+
         let crawlResultsArray = [] //   Stores the results of the crawl 
         let urlCrawlFinishedArray = []
 
-        //  Ensures request body is complete 
         if (!urls || storeResults == null) {
             return res.status(400).json({ 
                 error: 'URL and storeResults are both required',
@@ -61,7 +60,6 @@ app.post('/crawl', async (req, res)=> {
             })
         }
 
-        //  Ensures there are no duplicates
         if (new Set(urls).size !== urls.length) {
             return res.status(400).json({
                 error: 'Please ensure there are no duplicate URLs',
@@ -69,22 +67,12 @@ app.post('/crawl', async (req, res)=> {
             })
         }
 
-        //  Ensures a valid URL was inputted 
         try {
-
             for (let i=0; i < urls.length; i++) {
-                console.log("made it here 1")
                 const validURL = new URL(urls[i])
-                console.log("made it here 2")
-
                 urls[i] = normalizeURL(validURL)
-                console.log("made it here 3")
-
                 const crawlResults = await crawlWebsite(validURL)
-                console.log("made it here 4")
-
                 crawlResultsArray.push(crawlResults)
-                console.log("made it here 5")
             }
         } catch (error) {
             return res.status(400).json({
@@ -93,20 +81,22 @@ app.post('/crawl', async (req, res)=> {
             })
         }      
         
-        console.log('Made it to line 6')
-        //  If the user would like to store the results 
+        //  If the user would like to store the results, create random ID 
         const reqID = Math.floor(Math.random() * 1000000)
         
         if (storeResults) {
-            //  The urls object (user input) MUST be an array of URLS
             await client.query(queries.insertRequest, [reqID, urls])
         }
 
         for (const crawlResult of crawlResultsArray) {
 
             //Extracts information from crawl results 
-            const { urlsArray, rootURL } = returnJSONReport(crawlResult)            
-            urlCrawlFinishedArray.push(urlsArray)
+            const { urlsArray, rootURL } = returnJSONReport(crawlResult)  
+
+            urlCrawlFinishedArray.push({
+                rootURL,
+                sub_urls: urlsArray
+            })
             
             try {
                 if (storeResults) {
