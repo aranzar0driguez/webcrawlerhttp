@@ -1,12 +1,11 @@
 import React from "react";
-import { Container, Typography } from "@mui/material";
-import Button from '@mui/material/Button';
+import { Container, Typography, Button } from "@mui/material";
 
 
 
 const Header = () => {
   return (
-    <div className="header" >
+    <section className="header" style={{ height: '80vh', background: 'transparent'}}>
         <Container  sx={{display: 'flex', flexDirection: 'row', paddingTop: '20vh'}}>
             
             <Container sx={{width: '70vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
@@ -24,7 +23,7 @@ const Header = () => {
                     </ul>
                 </div>
 
-                <Button variant="outlined"  
+                <Button variant="outlined" 
                     sx={{ 
                         marginLeft: '15px', 
                         color: "white", 
@@ -32,9 +31,12 @@ const Header = () => {
                         border: '2px solid #419285',
                         borderRadius: '20px',
                         padding: '10px 10px',
-                        textTransform: 'capitalize'
+                        textTransform: 'initial',
+                        fontSize: '1rem',
+
                         }}>
-                    Try it!</Button>
+                    Try it out!</Button> 
+              
               
                 
             </Container>
@@ -43,7 +45,7 @@ const Header = () => {
             {/*Empty container */}
             </Container>
         </Container>
-    </div>
+    </section>
   );
 };
 

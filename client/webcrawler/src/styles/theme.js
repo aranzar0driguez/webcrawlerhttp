@@ -14,7 +14,6 @@ const webCrawlerTheme = createTheme({
         },
         text: {
           primary: "#419285", // White
-          // main: "#45503b", // Ebony
         },
       },
       typography: {

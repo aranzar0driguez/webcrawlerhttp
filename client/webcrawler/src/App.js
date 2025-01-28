@@ -5,11 +5,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import HomePage from './pages/home';
 
 
-import { Box } from '@mui/material'
-
 function App() {
   return (
-    <ThemeProvider theme={webCrawlerTheme}>
+    <ThemeProvider theme={webCrawlerTheme} >
       <CssBaseline />
       <HomePage />
     </ThemeProvider>
