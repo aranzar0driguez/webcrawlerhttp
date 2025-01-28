@@ -33,8 +33,7 @@ const Header = () => {
                         padding: '10px 10px',
                         textTransform: 'initial',
                         fontSize: '1rem',
-
-                        }}>
+                    }}>
                     Try it out!</Button> 
               
               

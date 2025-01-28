@@ -1,12 +1,14 @@
 import React from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
+import UserInput from "./body-components/userinput";
 import Grid from "@mui/material/Grid2";
+import Terminal from "./body-components/terminal";
 
 
 
 const Body = () => {
   return (
-    <div>
+    <div style={{paddingBottom: '20vh'}}>
         {/** Top of the second section */}
         <Box display={'flex'} sx={{flexDirection: 'column', alignItems: 'center', gap: '20px'}} textAlign={'center'} padding={'10vh 0px'}>
             <Typography variant="h3">What is Crawlz?</Typography>
@@ -15,12 +17,20 @@ const Body = () => {
             </Typography>
         </Box>
 
-        <Grid container spacing={2} justifyContent={'center'} >
-            <Grid size={3} height="300px" sx={{border: '1px solid white'}}>
-                hey
+        {/**Second half of the section */}
+        <Grid container spacing={5} justifyContent={'center'} >
+            <Grid size={3} height="300px" >
+                {/**This is where the user can input the website's URL + call the api (left side) */}
+                <UserInput />
+
+
             </Grid>
-            <Grid size={8} height="300px" sx={{border: '1px solid white'}}>
-                hey
+            <Grid size={7} display='flex' flexDirection={'column'} gap='2.5vh'>
+                <Grid item>
+                    <Typography color='white'>Response</Typography>
+                </Grid>
+
+                <Terminal />
             </Grid>
         </Grid >
        
