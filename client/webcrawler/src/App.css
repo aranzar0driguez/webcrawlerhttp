@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: rgb(31, 32, 40);
+}
+
+.header {
+  text-align: center;
+  margin: 0px 0px;
+  height: 100%;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center; 
+  margin-left: 15px;
+  margin-bottom: 15px;
+}
+
+.wrapper .static-txt {
+  font-size: 30px; /* Static text size */
+  font-weight: 400;
+  color: white; /* Ensure text is visible */
+}
+
+.wrapper .dynamic-txts {
+  margin-left: 10px;
+  height: 35px; /* Increased from 30px to 35px */
+  line-height: 35px; /* Increased from 30px to 35px */
+  overflow: hidden;
+  text-align: left;
+}
+
+.dynamic-txts li {
+  list-style: none;
+  color: white;
+  font-size: 30px;
+  font-weight: 500;
+  position: relative;
+  top: 0;
+  animation: slide 12s steps(4) infinite;
+  
+}
+
+@keyframes slide {
+  100% {
+    top: -140px; /* Adjusted from -120px to -140px to account for new height */
+  }
+}
+
+.dynamic-txts li span {
+  position: relative;
+  margin: 5px 0;
+  line-height: 35px; /* Increased from 30px to 35px */
+}
+
+.dynamic-txts li span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  height: 120%;
+  width: 100%;
+  background: rgb(31, 32, 40);
+  border-left: 4px solid #419285;
+  animation: typing 3s steps(10) infinite;
+}
+
+@keyframes typing {
+  40%, 60% {
+    left: 100%; 
+  }
+  100% {
+    left: 0;
+  }
+}
