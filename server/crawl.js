@@ -175,8 +175,6 @@ function normalizeURL(urlString) {
 //     //return markdown
 // }
 
-//  Makes the function above available to other js files
-//  That may need to import it 
 module.exports = {
     normalizeURL,
     getURLsFromHTML,
