@@ -6,7 +6,7 @@ import { TextField, Typography, Box, Button } from "@mui/material";
 const UserInput = () => {
     return (
         <div>
-            <Grid display={'flex'} sx={{flexDirection: 'column', gap: '2.5vh'}}>
+            <Grid display='flex' sx={{flexDirection: 'column', gap: '2.5vh'}}>
                 <Typography sx={{color: 'white', fontSize: '1.1rem'}}>Enter a website url:</Typography>
                 
                 <TextField placeholder="https://" sx={{"& .MuiOutlinedInput-notchedOutline": {border: 'none'}, input: { color: 'white'}, 
