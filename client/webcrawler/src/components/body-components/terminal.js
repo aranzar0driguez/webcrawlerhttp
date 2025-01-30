@@ -8,8 +8,11 @@ import CircleIcon from '@mui/icons-material/Circle';
 const Terminal = () => {
     return (
         <>
+            <Typography color='white'>Response</Typography>
+
             <Box backgroundColor="#262932" sx={{height: '60vh', width: "90%", borderRadius: '25px'}}>
                 
+
                 {/*Buttons on the top left */}
                 <Grid display={'flex'} flexDirection={'row'} alignItems={'center'}>
                     <Grid container display={'flex'} spacing={'.5vh'} margin={'7px 7px'}>

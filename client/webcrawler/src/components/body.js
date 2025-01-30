@@ -25,13 +25,23 @@ const Body = () => {
 
 
             </Grid>
-            <Grid size={7} display='flex' flexDirection={'column'} gap='2.5vh'>
-                <Grid item>
-                    <Typography color='white'>Response</Typography>
-                </Grid>
+            <Grid 
+                size={7} 
+                display='flex' 
+                flexDirection='column' 
+                gap='2.5vh' 
+                style={{ border: '1px solid white' }}
+                >
+                    {/* <div style={{ width: '100%', display: 'flex' }}>
+                        <Grid item>
+                            <Typography color='white'>Response</Typography>
+                        </Grid>
+                    </div> */}
 
-                <Terminal />
-            </Grid>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                        <Terminal />
+                    </div>
+                </Grid>
         </Grid >
        
     </div>
