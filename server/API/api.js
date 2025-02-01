@@ -1,11 +1,16 @@
 const client = require('./connection.js')
 const express = require('express');
+const cors = require('cors');
 const { crawlWebsite } = require('../main.js')
 const { returnJSONReport } = require(`../report.js`)
 const { insertURLData, queries, deleteData } = require('./queries.js');
 const { normalizeURL } = require('../crawl.js');
 
 const app = express()   //  Creates the server 
+
+app.use(cors()) //  allows server to accept requests from different origins 
+// (other domains, protocols, or ports) by setting appropriate HTTP headers
+
 app.use(express.json()) //converts body to JSON
 
 app.listen(3300, ()=> {
