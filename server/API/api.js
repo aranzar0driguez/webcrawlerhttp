@@ -4,7 +4,7 @@ const cors = require('cors');
 const { crawlWebsite } = require('../main.js')
 const { returnJSONReport } = require(`../report.js`)
 const { insertURLData, queries, deleteData } = require('./queries.js');
-const { normalizeURL, normalizeRootURL } = require('../crawl.js');
+const { normalizeRootURL } = require('../crawl.js');
 
 const app = express()   //  Creates the server 
 

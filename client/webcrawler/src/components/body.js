@@ -18,7 +18,9 @@ const Body = () => {
         const callAPIfunc = async () => {
             const result = await getData(requestInfo.arrayOfURLs)
             if (isMounted) {
+                
                 setData(result)
+                console.log(result)
             }
         }
         callAPIfunc()
@@ -37,6 +39,7 @@ const Body = () => {
 
         var str = url.replace(/\s/g, ''); //    Removes white spaces from the string
         const arrayOfURLs = str.split(','); // Converts it into an array 
+
 
         const allData = {
             arrayOfURLs,

@@ -15,10 +15,12 @@ const Terminal = ({apiData}) => {
                     <Typography color='white' paddingBottom={'2.5vh'}>Response</Typography>
                 </Grid>
 
-                <Box backgroundColor="#262932" sx={{height: '60vh', width: "100%", borderRadius: '25px'}}>
+                <Box backgroundColor="#262932" sx={{height: '60vh', width: "100%", borderRadius: '25px', overflow: 'scroll'}}>
                     
                     {/*Buttons on the top left */}
-                    <Grid display={'flex'} flexDirection={'row'} alignItems={'center'}>
+                    <Grid backgroundColor='inherit' display={'flex'} flexDirection={'row'} alignItems={'center'} 
+                        sx={{borderBottom: '1px solid white', position: 'sticky', top: 0, zIndex: 10}} >
+                            
                         <Grid container display={'flex'} spacing={'.5vh'} margin={'7px 7px'}>
                             <Grid item color="#C95A61"> <CircleIcon /> </Grid>
                             <Grid item color="#ECC24B"> <CircleIcon /> </Grid>
@@ -41,19 +43,22 @@ const Terminal = ({apiData}) => {
                         </Grid>
                     </Grid>
 
-                    <Divider color="white"></Divider>
 
                     {apiData && apiData.length > 0 ? (
-                        apiData.map((url, index) => (
-                        <div key={index}>
-                            <h1 style={{color: 'white'}}>{url.rootURL}</h1>
-                        </div>
-                        ))
-                    ) : (
+                        <pre style={{
+                            color: 'white',
+                            padding: '20px',
+                            margin: '0',
+                            fontFamily: 'monospace',
+                            fontSize: '12px'
+                        }}>
+                            {JSON.stringify(apiData, null, 2)}
+                        </pre>
+                        ) : (
                         <Typography color="white" sx={{ p: 2 }}>
-                        No data available
+                            No data available
                         </Typography>
-                    )}
+                        )}
 
                 </Box>
             </Grid>

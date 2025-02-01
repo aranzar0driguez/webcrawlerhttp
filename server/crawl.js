@@ -29,7 +29,6 @@ async function crawlPage(baseURL, currentURL, pages) {
         headers: [],
         meta: [] 
     }
-   
 
     try {
         const resp = await fetch(currentURL)
