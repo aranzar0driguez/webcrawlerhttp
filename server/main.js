@@ -1,10 +1,11 @@
-const { crawlPage } = require(`./crawl.js`)
+const { crawlPage, normalizeRootURL } = require(`./crawl.js`)
 const { printReport } = require(`./report.js`)
 
 //  Export crawLogic 
 async function crawlWebsite(baseURL) {
-    console.log(`starting crawl of ${baseURL}`)
-    const pages = await crawlPage(baseURL, baseURL, {})
+    let normalizedURL = normalizeRootURL(baseURL)
+    console.log(`starting crawl of ${normalizedURL}`)
+    const pages = await crawlPage(normalizedURL, normalizedURL, {})
     return pages
 }
 

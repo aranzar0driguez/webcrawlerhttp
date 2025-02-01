@@ -167,6 +167,19 @@ function normalizeURL(urlString) {
     
 }
 
+function normalizeRootURL(urlString) {
+    var pattern = /^((http|https|ftp):\/\/)/
+
+    if(!pattern.test(urlString)) {
+        url = "http://" + urlString
+        console.log(`the normalized url: ${url}`)
+        return url
+    } else {
+        return urlString
+    }
+
+}
+
 // function convertIntoMarkDown(htmlBody) {
 //     var turndownService = new TurndownService()
 //     var markdown = turndownService.turndown(htmlBody)
@@ -179,5 +192,6 @@ module.exports = {
     normalizeURL,
     getURLsFromHTML,
     crawlPage,
-    getElementFromHTML
+    getElementFromHTML,
+    normalizeRootURL
 }

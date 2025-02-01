@@ -4,7 +4,7 @@ const cors = require('cors');
 const { crawlWebsite } = require('../main.js')
 const { returnJSONReport } = require(`../report.js`)
 const { insertURLData, queries, deleteData } = require('./queries.js');
-const { normalizeURL } = require('../crawl.js');
+const { normalizeURL, normalizeRootURL } = require('../crawl.js');
 
 const app = express()   //  Creates the server 
 
@@ -100,8 +100,7 @@ app.post('/crawl', async (req, res)=> {
 
         try {
             for (let i=0; i < urls.length; i++) {
-                const validURL = new URL(urls[i])
-                urls[i] = normalizeURL(validURL)
+                const validURL = new URL(normalizeRootURL(urls[i]))
                 const crawlResults = await crawlWebsite(validURL)
                 crawlResultsArray.push(crawlResults)
             }
