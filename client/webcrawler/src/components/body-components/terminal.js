@@ -8,7 +8,13 @@ import CircleIcon from '@mui/icons-material/Circle';
 const Terminal = ({apiData}) => {
     return (
         <>
-            <Grid item width={'90%'} spacing={5} >
+            <Grid item spacing={5} 
+                sx={{
+                    width: {xs: '70vw',
+                        sm: '70vw',
+                        md: '52.5vw'
+                    }}}
+            >
 
 
                 <Grid item>
@@ -20,7 +26,7 @@ const Terminal = ({apiData}) => {
                     {/*Buttons on the top left */}
                     <Grid backgroundColor='inherit' display={'flex'} flexDirection={'row'} alignItems={'center'} 
                         sx={{borderBottom: '1px solid white', position: 'sticky', top: 0, zIndex: 10}} >
-                            
+
                         <Grid container display={'flex'} spacing={'.5vh'} margin={'7px 7px'}>
                             <Grid item color="#C95A61"> <CircleIcon /> </Grid>
                             <Grid item color="#ECC24B"> <CircleIcon /> </Grid>

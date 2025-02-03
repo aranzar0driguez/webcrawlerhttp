@@ -6,16 +6,16 @@ import { Container, Typography, Button } from "@mui/material";
 const Header = () => {
   return (
     <section className="header" style={{ height: '80vh', background: 'transparent'}}>
-        <Container  sx={{display: 'flex', flexDirection: 'row', paddingTop: '20vh'}}>
+        <Container  sx={{display: 'flex', flexDirection: 'column', paddingTop: '20vh'}}>
             
             <Container sx={{width: '70vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
                                 
-                <p style={{ fontSize: '130px', fontWeight: 'bold', lineHeight: 1, display: 'block', width: 'fit-content'}}>Crawlz</p>
+                <Typography sx={{ fontSize: 'clamp(70px, 10.0vw, 200px)'}} style={{ fontWeight: 'bold', lineHeight: 1, display: 'block', width: 'fit-content'}}>Crawlz</Typography>
                 
                 <div className="wrapper">
-                    <div variant="h4" className="static-txt">You can crawl</div>
+                    <Typography className="static-txt" style={{fontSize: 'clamp(17px, 2.3vw, 30px)'}}>You can crawl</Typography>
                     <ul className="dynamic-txts">
-                        <li><span>meta tags</span></li>
+                        <li ><span>meta tags</span></li>
                         <li><span>header tags</span></li>
                         <li><span>external links</span></li>
                         <li><span>title tags</span></li>

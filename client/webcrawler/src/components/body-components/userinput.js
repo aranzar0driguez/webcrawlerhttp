@@ -8,7 +8,11 @@ const UserInput = (props) => {
 
     return (
         <form action={props.handleURL} >
-            <Grid display='flex' sx={{flexDirection: 'column', gap: '2.5vh'}}>
+            <Grid display='flex' 
+                sx={{
+                    flexDirection: 'column', 
+                    width: {xs: '70vw', sm: '70vw', md: '100%'},
+                    gap: '2.5vh'}}>
                 <Typography sx={{color: 'white', fontSize: '1.1rem'}}>Enter a website url:</Typography>
                 
                 <TextField placeholder="https://" name="url" sx={{"& .MuiOutlinedInput-notchedOutline": {border: 'none'}, input: { color: 'white'}, 
@@ -50,7 +54,8 @@ const UserInput = (props) => {
                         padding: '5px 10px',
                         textTransform: 'initial',
                         fontSize: '1rem',
-                        width: '100%'
+                        width: '100%',
+                        maxWidth: '300px'
                         }}>Call the API</Button> 
 
 

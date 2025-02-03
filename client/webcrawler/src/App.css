@@ -51,7 +51,7 @@ section:before {
 .dynamic-txts li {
   list-style: none;
   color: white;
-  font-size: 30px;
+  font-size: clamp(17px, 2.3vw, 30px);
   font-weight: 500;
   position: relative;
   top: 0;
@@ -80,7 +80,7 @@ section:before {
   height: 100%;
   width: 100%;
   background: rgb(31, 32, 40);
-  border-left: 4px solid #419285;
+  border-left: 3px solid #419285;
   animation: typing 3s steps(20) infinite;
 }
 
