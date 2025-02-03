@@ -5,22 +5,22 @@ import Grid from "@mui/material/Grid2";
 import Terminal from "./body-components/terminal";
 import { getData } from '../api';
 
-
 const Body = () => {
 
     const [requestInfo, setRequestInfo] = useState("")
     const [terminalData, setData] = useState([]) 
+    const [element, setElement] = useState({})
 
     useEffect(() => {
         
         let isMounted = true
         
         const callAPIfunc = async () => {
-            const result = await getData(requestInfo.arrayOfURLs)
+
+            const result = await getData(requestInfo.arrayOfURLs, element)
             if (isMounted) {
                 
                 setData(result)
-                console.log(result)
             }
         }
         callAPIfunc()
@@ -28,7 +28,7 @@ const Body = () => {
         return () => {
             isMounted = false
         }
-      }, [requestInfo]);
+      }, [requestInfo, element]);
 
     async function getUserRequestURL(formData) {
 
@@ -40,12 +40,24 @@ const Body = () => {
         var str = url.replace(/\s/g, ''); //    Removes white spaces from the string
         const arrayOfURLs = str.split(','); // Converts it into an array 
 
-
         const allData = {
             arrayOfURLs,
             tags
         }
-
+        
+        let tagsArray = {
+            titles: {
+                crawl: tags.includes("titleTags")
+            },
+            headers: {
+                crawl: tags.includes("headerTags")
+            },
+            metaData: {
+                crawl: tags.includes("metaTags")
+            }
+        }
+        
+        setElement(tagsArray)
         setRequestInfo(allData)
   
       }

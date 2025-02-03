@@ -1,11 +1,12 @@
 const { crawlPage, normalizeRootURL } = require(`./crawl.js`)
 const { printReport } = require(`./report.js`)
 
+
 //  Export crawLogic 
-async function crawlWebsite(baseURL) {
+async function crawlWebsite(baseURL, includeElement) {  //  Pass parameters for the type of tags you would like to obtain 
     let normalizedURL = normalizeRootURL(baseURL)
     console.log(`starting crawl of ${normalizedURL}`)
-    const pages = await crawlPage(normalizedURL, normalizedURL, {})
+    const pages = await crawlPage(normalizedURL, normalizedURL, {}, includeElement) //  Pass down the parameters for the tags
     return pages
 }
 

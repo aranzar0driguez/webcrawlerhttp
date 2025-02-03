@@ -6,8 +6,14 @@ const { returnJSONReport } = require(`../report.js`)
 const { insertURLData, queries, deleteData } = require('./queries.js');
 const { normalizeRootURL } = require('../crawl.js');
 
+const bodyParser = require('body-parser');
+
+
 const app = express()   //  Creates the server 
 
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors()) //  allows server to accept requests from different origins 
 // (other domains, protocols, or ports) by setting appropriate HTTP headers
 
@@ -77,9 +83,13 @@ app.get('/crawl/:request_id', async (req, res)=> {
 
 })
 
+
 //  Detects whether the endpoint was successfull 
 app.post('/crawl', async (req, res)=> {
-        const { urls, storeResults } = req.body
+        const { urls, storeResults, includeElement } = req.body
+
+        console.log(req.body)
+
 
         let crawlResultsArray = [] //   Stores the results of the crawl 
         let urlCrawlFinishedArray = []
@@ -100,8 +110,8 @@ app.post('/crawl', async (req, res)=> {
 
         try {
             for (let i=0; i < urls.length; i++) {
-                const validURL = new URL(normalizeRootURL(urls[i]))
-                const crawlResults = await crawlWebsite(validURL)
+                const validURL = new URL(normalizeRootURL(urls[i])) //  Ensures that the URL is reformatted with http:// at the beginning 
+                const crawlResults = await crawlWebsite(validURL, includeElement) //  Returns back the results of the crawl along with its results 
                 crawlResultsArray.push(crawlResults)
             }
         } catch (error) {

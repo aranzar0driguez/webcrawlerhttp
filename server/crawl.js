@@ -2,7 +2,9 @@ const {JSDOM} = require('jsdom')
 var TurndownService = require('turndown')
 //const puppeteer = require('puppeteer');
 
-async function crawlPage(baseURL, currentURL, pages) {
+
+
+async function crawlPage(baseURL, currentURL, pages, includeElement) { //   Contains parameters for the types of tags to scrape 
 
     const baseURLObj = new URL(baseURL)
     const currentURLObj = new URL(currentURL)
@@ -47,16 +49,19 @@ async function crawlPage(baseURL, currentURL, pages) {
 
         const htmlBody = await resp.text()    
         
+        //  An array of true or false values is passed (maybe a reference to the value where it matches a specific value )
+
         const nextURLs = getURLsFromHTML(htmlBody, baseURL)
-        const titles = getElementFromHTML(htmlBody, normalizeCurrentURL, 'title')
-        const headers = getElementFromHTML(htmlBody, normalizeCurrentURL, 'h1, h2, h3, h4, h5, h6')
-        const metaData = getElementFromHTML(htmlBody, normalizeCurrentURL, 'meta[name="description"], meta[property="og:description"]')
+        const titles = getElementFromHTML(htmlBody, normalizeCurrentURL, 'title', includeElement.titles.crawl)
+        const headers = getElementFromHTML(htmlBody, normalizeCurrentURL, 'h1, h2, h3, h4, h5, h6', includeElement.headers.crawl)
+        const metaData = getElementFromHTML(htmlBody, normalizeCurrentURL, 'meta[name="description"], meta[property="og:description"]', includeElement.metaData.crawl)
+
 
         pages[normalizeCurrentURL].titles = titles
         pages[normalizeCurrentURL].headers = headers
         pages[normalizeCurrentURL].meta = metaData
 
-        //  This is the list of all the URLs 
+        //  This is the list of all the URLs it crawled within the website 
         for (const nextURL of nextURLs) {
             
             const nextURLObj = new URL(nextURL)
@@ -65,12 +70,12 @@ async function crawlPage(baseURL, currentURL, pages) {
             if (baseURLObj.hostname !== nextURLObj.hostname) {
 
                 if (nextURLObj.protocol.startsWith("http")) {
-                    pages[normalizeCurrentURL].externalURL.push(nextURLObj.href); // Use .push() to add to the array
+                    pages[normalizeCurrentURL].externalURL.push(nextURLObj.href); // Adds an external URL to the array
                 }
 
             }
 
-            pages = await crawlPage(baseURL, nextURL, pages)
+            pages = await crawlPage(baseURL, nextURL, pages, includeElement)
         }
 
     } catch (err) {
@@ -82,70 +87,77 @@ async function crawlPage(baseURL, currentURL, pages) {
 
 function getURLsFromHTML(htmlBody, baseURL) {
     const urls = []
-    //  allows us to access DOM APIs -> document object model 
-    const dom = new JSDOM(htmlBody) //  Holds that html street structure
-    const linkElements = dom.window.document.querySelectorAll('a')
 
-    for (const linkElement of linkElements) {
+        //  allows us to access DOM APIs -> document object model 
+        const dom = new JSDOM(htmlBody) //  Holds that html street structure
+        const linkElements = dom.window.document.querySelectorAll('a')
 
-        //  If the href element starts with /... go ahead and add the base URL to it 
-        if (linkElement.href.slice(0, 1) === '/') {
-            try {
+        for (const linkElement of linkElements) {
 
-                const urlObj = new URL(`${baseURL}${linkElement.href}`)
+            //  If the href element starts with /... go ahead and add the base URL to it 
+            if (linkElement.href.slice(0, 1) === '/') {
+                try {
+
+                    const urlObj = new URL(`${baseURL}${linkElement.href}`)
+                    
+                    urls.push(urlObj.href)
+
+                } catch (err) {
+                    console.log(`error with relative URL: ${err.message}`)
+                }
                 
-                urls.push(urlObj.href)
+            } else if (linkElement.href.slice(0,2) == '..') {
+                try {
+                    //  Remove the first two dots 
+                    const sliceURL = linkElement.href.slice(2)
+                    const urlObj = new URL(`${baseURL}${sliceURL}`)
+                    
+                    urls.push(urlObj.href)
 
-            } catch (err) {
-                console.log(`error with relative URL: ${err.message}`)
+
+                } catch (err) {
+                    console.log(`error turning the ../ URL into an obj ${err.message}`)
+                }
             }
             
-        } else if (linkElement.href.slice(0,2) == '..') {
-            try {
-                //  Remove the first two dots 
-                const sliceURL = linkElement.href.slice(2)
-                const urlObj = new URL(`${baseURL}${sliceURL}`)
-                
-                urls.push(urlObj.href)
+            else {
+                try {
+                    const urlObj = new URL(linkElement.href)
+                    urls.push(urlObj.href)
 
 
-            } catch (err) {
-                console.log(`error turning the ../ URL into an obj ${err.message}`)
+                } catch (err) {
+                    console.log(`error with absolute URL: ${err.message}`)
+                }
             }
-        }
         
-        else {
-            try {
-                const urlObj = new URL(linkElement.href)
-                urls.push(urlObj.href)
-
-
-            } catch (err) {
-                console.log(`error with absolute URL: ${err.message}`)
-            }
-        }
     }
 
     return urls
  
 }
 
-function getElementFromHTML(htmlBody, currentURL, querySelectorElement) {
+function getElementFromHTML(htmlBody, currentURL, querySelectorElement, includeValue) {
     
     const elementArray = []
-    const dom = new JSDOM(htmlBody)
-    const elements = dom.window.document.querySelectorAll(querySelectorElement)
 
-    if (querySelectorElement !== 'meta[name="description"], meta[property="og:description"]') {
-        for (const element of elements) {
-            //console.log(`One of the title element for ${currentURL} is ${title.textContent}`)
-            elementArray.push(element.textContent)
-        }
-    } else {
+    if (includeValue) {
         
-        for (const element of elements) {
+        const dom = new JSDOM(htmlBody)
+        const elements = dom.window.document.querySelectorAll(querySelectorElement)
 
-            elementArray.push(element.content)
+        if (querySelectorElement !== 'meta[name="description"], meta[property="og:description"]') {
+            for (const element of elements) {
+                //console.log(`One of the title element for ${currentURL} is ${title.textContent}`)
+                elementArray.push(element.textContent)
+            }
+        } else {
+            
+            for (const element of elements) {
+
+                elementArray.push(element.content)
+
+            }
 
         }
 

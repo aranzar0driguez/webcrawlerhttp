@@ -1,12 +1,8 @@
 import axios from 'axios'
 
 
-export const getData = async (requestedURLs) => {
+export const getData = async (requestedURLs, includeElement) => {
 
-    let data = JSON.stringify({
-      "urls": requestedURLs,
-      "storeResults": false
-    })
 
     let config = {
       method: 'post',
@@ -15,7 +11,12 @@ export const getData = async (requestedURLs) => {
       headers: { 
         'Content-Type': 'application/json'
       },
-      data : data
+      data : {
+        urls: requestedURLs,
+        storeResults: false,
+        includeElement: includeElement 
+        //  We are instead passing the element directly so that the serialization can be consistent
+      }
     };
 
     try {
