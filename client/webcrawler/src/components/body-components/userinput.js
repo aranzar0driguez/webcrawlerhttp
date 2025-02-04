@@ -3,8 +3,15 @@ import Grid from "@mui/material/Grid2";
 import { TextField, Typography, Button, Divider, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import { useState } from "react";
 
+
 const UserInput = (props) => {
-    
+
+    const [status, setStatus] = useState({
+        externalLinks: true,
+        metatags: true,
+        headerTags: true,
+        titleTags: true
+    })
 
     return (
         <form action={props.handleURL} >
@@ -24,20 +31,56 @@ const UserInput = (props) => {
 
                 <FormGroup>
 
-                    <FormControlLabel control={<Checkbox name="tags" value="externalLinks" color="secondary" 
+                    <FormControlLabel control={<Checkbox 
+                        checked={status.externalLinks} 
+                        onChange={(event) => 
+                            setStatus({...status, externalLinks: event.target.checked})
+                        }
+                        label="External Links" 
+                        name="tags" 
+                        value="externalLinks" 
+                        color="secondary" 
                         sx={{color: 'white'}}  />} 
+
                         label={<Typography color="white">External Links</Typography>}/>
 
-                    <FormControlLabel control={<Checkbox name="tags" value="metaTags" color="secondary" 
+                    <FormControlLabel control={<Checkbox 
+                        checked={status.metatags} 
+                        onChange={(event) => 
+                            setStatus({...status, metatags: event.target.checked})
+                        }
+                        label="Meta Tags" 
+                        name="tags" 
+                        value="metaTags" 
+                        color="secondary" 
                         sx={{color: 'white'}} />} 
+
                         label={<Typography color="white">Meta tags</Typography>}/>
 
-                    <FormControlLabel control={<Checkbox name="tags" value="headerTags" color="secondary" 
+                    <FormControlLabel control={<Checkbox 
+                        checked={status.headerTags} 
+                        onChange={(event) => 
+                            setStatus({...status, headerTags: event.target.checked})
+                        }
+                        label="Header Tags" 
+                        name="tags" 
+                        value="headerTags" 
+                        color="secondary" 
                         sx={{color: 'white'}} />} 
+
                         label={<Typography color="white">Header tags</Typography>}/>
 
-                    <FormControlLabel control={<Checkbox name="tags" value="titleTags" color="secondary" 
+                    <FormControlLabel control={<Checkbox 
+                        checked={status.titleTags} 
+                        onChange={(event) => 
+                            setStatus({...status, titleTags: event.target.checked})
+                        }
+                        label="Title tags" 
+                        name="tags" 
+                        value="titleTags" 
+                        color="secondary" 
                         sx={{color: 'white'}} />} 
+
                         label={<Typography color="white">Title tags</Typography>}/>
 
                 </FormGroup> 
@@ -45,7 +88,12 @@ const UserInput = (props) => {
 
                 <Divider style={{margin: '5px 0px', height: '0px'}}></Divider>
 
-                <Button type="submit" variant="outlined" 
+                <Button type="submit" variant="outlined" onClick={() => setStatus({
+                    externalLinks: false,
+                    metatags: false,
+                    headerTags: false,
+                    titleTags: false
+                })}
                     sx={{ 
                         color: "white", 
                         borderColor: "secondary.main", 
@@ -57,7 +105,6 @@ const UserInput = (props) => {
                         width: '100%',
                         maxWidth: '300px'
                         }}>Call the API</Button> 
-
 
             </Grid>
         </form>
