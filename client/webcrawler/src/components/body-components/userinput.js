@@ -1,10 +1,11 @@
-import  React from "react";
+import  React, { useEffect } from "react";
 import Grid from "@mui/material/Grid2";
 import { TextField, Typography, Button, Divider, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import { useState } from "react";
 
-
 const UserInput = (props) => {
+
+    const [isButtonDisabled, setButtonDisabled] = useState(false)
 
     const [status, setStatus] = useState({
         externalLinks: true,
@@ -12,6 +13,11 @@ const UserInput = (props) => {
         headerTags: true,
         titleTags: true
     })
+
+    useEffect(() => {
+        const allUnchecked = Object.values(status).every((value) => !value)
+        setButtonDisabled(allUnchecked)
+    }, [status])
 
     return (
         <form action={props.handleURL} >
@@ -88,7 +94,7 @@ const UserInput = (props) => {
 
                 <Divider style={{margin: '5px 0px', height: '0px'}}></Divider>
 
-                <Button type="submit" variant="outlined" onClick={() => setStatus({
+                <Button disabled={isButtonDisabled} type="submit" variant="outlined" onClick={() => setStatus({
                     externalLinks: false,
                     metatags: false,
                     headerTags: false,
@@ -103,7 +109,11 @@ const UserInput = (props) => {
                         textTransform: 'initial',
                         fontSize: '1rem',
                         width: '100%',
-                        maxWidth: '300px'
+                        maxWidth: '300px',
+                        "&:disabled": {  // Override disabled styles
+                            color: "gray",
+                            border: "2px solid gray",
+                          }
                         }}>Call the API</Button> 
 
             </Grid>
