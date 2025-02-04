@@ -16,7 +16,6 @@ const Terminal = ({apiData}) => {
                     }}}
             >
 
-
                 <Grid item>
                     <Typography color='white' paddingBottom={'2.5vh'}>Response</Typography>
                 </Grid>
@@ -49,7 +48,10 @@ const Terminal = ({apiData}) => {
                         </Grid>
                     </Grid>
 
+                    {/**Terminal */}
 
+
+                    {/**JSON Data */}
                     {apiData && apiData.length > 0 ? (
                         <pre style={{
                             color: 'white',
@@ -65,6 +67,9 @@ const Terminal = ({apiData}) => {
                             No data available
                         </Typography>
                         )}
+
+                    {/**README.md */}
+
 
                 </Box>
             </Grid>

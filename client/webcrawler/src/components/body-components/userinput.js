@@ -14,13 +14,22 @@ const UserInput = (props) => {
         titleTags: true
     })
 
+    function resetCheckboxes() {
+        setStatus({
+            externalLinks: false,
+            metatags: false,
+            headerTags: false,
+            titleTags: false
+        })
+    }
+
     useEffect(() => {
         const allUnchecked = Object.values(status).every((value) => !value)
         setButtonDisabled(allUnchecked)
     }, [status])
 
     return (
-        <form action={props.handleURL} >
+        <form action={props.handleURL} onSubmit={resetCheckboxes}>
             <Grid display='flex' 
                 sx={{
                     flexDirection: 'column', 
@@ -37,8 +46,8 @@ const UserInput = (props) => {
 
                 <FormGroup>
 
-                    <FormControlLabel control={<Checkbox 
-                        checked={status.externalLinks} 
+                    <FormControlLabel control={<Checkbox
+                        checked={status.externalLinks}
                         onChange={(event) => 
                             setStatus({...status, externalLinks: event.target.checked})
                         }
@@ -91,15 +100,9 @@ const UserInput = (props) => {
 
                 </FormGroup> 
 
-
                 <Divider style={{margin: '5px 0px', height: '0px'}}></Divider>
 
-                <Button disabled={isButtonDisabled} type="submit" variant="outlined" onClick={() => setStatus({
-                    externalLinks: false,
-                    metatags: false,
-                    headerTags: false,
-                    titleTags: false
-                })}
+                <Button disabled={isButtonDisabled} type="submit" variant="outlined"
                     sx={{ 
                         color: "white", 
                         borderColor: "secondary.main", 
