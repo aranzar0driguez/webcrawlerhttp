@@ -1,5 +1,6 @@
 const {JSDOM} = require('jsdom')
 var TurndownService = require('turndown')
+const { sendLogToClients } = require('./API/api')
 //const puppeteer = require('puppeteer');
 
 
@@ -22,7 +23,7 @@ async function crawlPage(baseURL, currentURL, pages, includeElement) { //   Cont
         return pages
     }
 
-    console.log(`actively crawling ${currentURL}`)
+    sendLogToClients(`actively crawling ${currentURL}`)
 
     pages[normalizeCurrentURL] = {
         count: 1,

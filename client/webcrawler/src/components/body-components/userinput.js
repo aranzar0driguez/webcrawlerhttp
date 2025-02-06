@@ -38,7 +38,7 @@ const UserInput = (props) => {
                 <Typography sx={{color: 'white', fontSize: '1.1rem'}}>Enter a website url:</Typography>
                 
                 <TextField placeholder="https://" name="url" sx={{"& .MuiOutlinedInput-notchedOutline": {border: 'none'}, input: { color: 'white'}, 
-                    border: '1px solid white', borderRadius: '20px'}} required/>
+                    border: '1px solid white', borderRadius: '20px'}} autoComplete="off" required/>
 
                 <Divider style={{margin: '5px 0px', height: '0px'}}></Divider>
 

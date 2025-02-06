@@ -11,7 +11,6 @@ const bodyParser = require('body-parser');
 
 const app = express()   //  Creates the server 
 
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors()) //  allows server to accept requests from different origins 
@@ -19,11 +18,44 @@ app.use(cors()) //  allows server to accept requests from different origins
 
 app.use(express.json()) //converts body to JSON
 
+let clients = new Set()
+
 app.listen(3300, ()=> {
     console.log("Server is now listening at port 3300")
 })
 
 client.connect()
+
+// function sendLogToClients(res, message) {
+//     clients.forEach(client => {
+//         client.write(`data: ${JSON.stringify(message)}\n\n`);   // Ensure we are writing to the tcp connection. This represents one event 
+//     });
+// }
+   
+// app.get('/logs', (req, res) => {
+//     res.setHeader('Content-Type', 'text/event-stream'); //  establishes the sse connection 
+//     res.setHeader('Cache-Control', 'no-cache');
+//     res.setHeader('Connection', 'keep-alive');
+//     // res.setHeader('Access-Control-Allow-Origin', '*');
+
+//     // clients.add(res);
+//     // req.on('close', () => clients.delete(res));
+// });
+
+app.get("/currentTime", (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+  
+    const intervalId = setInterval(() => {
+      res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+    }, 1000);
+  
+    res.on("close", () => {
+      clearInterval(intervalId);
+    });
+  });
 
 app.delete('/crawl/:request_id', async (req, res) => {
 
@@ -162,3 +194,7 @@ app.post('/crawl', async (req, res)=> {
         })
     
 })
+
+// module.exports = {
+//     sendLogToClients
+// }

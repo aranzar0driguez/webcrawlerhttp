@@ -3,7 +3,6 @@ import axios from 'axios'
 
 export const getData = async (requestedURLs, includeElement) => {
 
-
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
