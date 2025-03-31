@@ -8,32 +8,8 @@ import CircleIcon from '@mui/icons-material/Circle';
 import { Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 
-
-// const CrawlerLogs = () => {
-//     const [logs, setLogs] = useState([]);
-   
-//     useEffect(() => {
-//       const events = new EventSource('http://localhost:3000/logs');
-      
-//       events.onmessage = (event) => {
-//         setLogs(prev => [...prev, JSON.parse(event.data)]); //  Handles the message received from the web content
-//       };
-   
-//       return () => events.close();
-//     }, []);
-   
-//     return (
-//       <Box sx={{ maxHeight: '300px', overflow: 'auto' }}>
-//         {logs.map((log, index) => (
-//           <Typography key={index}>{log}</Typography>
-//         ))}
-//       </Box>
-//     );
-//    };
-
-
-
 function CustomTabPanel(props) {
+
   const { children, value, index, ...other } = props;
 
   return (
@@ -63,27 +39,30 @@ function a11yProps(index) {
 }
 
 export default function BasicTabs({apiData}) {
-  const [value, setValue] = React.useState(0);
+  const [consoleData, setData] = useState("");
+  const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-    useEffect(() => {
-        const timeElement = document.getElementById("time");
+  
+//  THis is one the one we're KEEPING   
+useEffect(() => {
+    const eventSource = new EventSource("http://localhost:3300/currenttime");
 
-        const timeEventSource = new EventSource("http://localhost:3300/currenttime");
+    //  Listens for incoming messages from the SSE server 
+    eventSource.onmessage = (event) => {
+        setData(event.data);
+        console.log("SSE Update:", event.data);
+        document.getElementById("log").innerHTML += event.data + "<br>";
+    };
 
-        // timeEventSource.onmessage = (event) => {
-        //   console.log(event);
-        //   timeElement.innerText = event.data;
-        // };
+    return () => {
+        eventSource.close();
+    };
+}, []);
 
-        timeEventSource.addEventListener("message", (event) => {
-        timeElement.innerText = event.data;
-        });
-
-    }, [])
 
 
   return (
@@ -107,9 +86,18 @@ export default function BasicTabs({apiData}) {
       </Box>
 
         {/**Real-time console terminal */}
-
         <CustomTabPanel value={value} index={0}>
-            <p id="time"/>
+            {consoleData  ? (
+                 <p id="log"></p>
+
+            ) : (
+              <Typography color="white" id="log">
+                Connection Established
+              </Typography>
+            )
+            }
+
+           
         </CustomTabPanel>
 
         {/**JSON Data */}

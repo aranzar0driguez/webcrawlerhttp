@@ -1,12 +1,14 @@
-const client = require('./connection.js')
+const client = require('./connection.js');
 const express = require('express');
 const cors = require('cors');
-const { crawlWebsite } = require('../main.js')
-const { returnJSONReport } = require(`../report.js`)
+const { crawlWebsite } = require('../main.js');
+const { returnJSONReport } = require(`../report.js`);
 const { insertURLData, queries, deleteData } = require('./queries.js');
 const { normalizeRootURL } = require('../crawl.js');
+const events = require('./events.js');
 
 const bodyParser = require('body-parser');
+const { ClientBase } = require('pg');
 
 
 const app = express()   //  Creates the server 
@@ -18,7 +20,6 @@ app.use(cors()) //  allows server to accept requests from different origins
 
 app.use(express.json()) //converts body to JSON
 
-let clients = new Set()
 
 app.listen(3300, ()=> {
     console.log("Server is now listening at port 3300")
@@ -26,36 +27,31 @@ app.listen(3300, ()=> {
 
 client.connect()
 
-// function sendLogToClients(res, message) {
-//     clients.forEach(client => {
-//         client.write(`data: ${JSON.stringify(message)}\n\n`);   // Ensure we are writing to the tcp connection. This represents one event 
-//     });
-// }
-   
-// app.get('/logs', (req, res) => {
-//     res.setHeader('Content-Type', 'text/event-stream'); //  establishes the sse connection 
-//     res.setHeader('Cache-Control', 'no-cache');
-//     res.setHeader('Connection', 'keep-alive');
-//     // res.setHeader('Access-Control-Allow-Origin', '*');
 
-//     // clients.add(res);
-//     // req.on('close', () => clients.delete(res));
-// });
-
-app.get("/currentTime", (req, res) => {
+app.get("/currenttime", (req, res) => {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.flushHeaders();
-  
-    const intervalId = setInterval(() => {
-      res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
-    }, 1000);
-  
-    res.on("close", () => {
-      clearInterval(intervalId);
+
+
+    const clientId = Date.now();
+    const newClient = {
+        id: clientId,
+        res
+    };
+    
+    events.registerClient(newClient)
+
+    res.write(`data: Connection has been established\n\n`)
+
+    
+    req.on("close", () => {
+        events.removeClient(newClient)
     });
-  });
+});
+
 
 app.delete('/crawl/:request_id', async (req, res) => {
 
@@ -194,7 +190,3 @@ app.post('/crawl', async (req, res)=> {
         })
     
 })
-
-// module.exports = {
-//     sendLogToClients
-// }

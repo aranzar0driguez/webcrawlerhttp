@@ -1,8 +1,9 @@
 const {JSDOM} = require('jsdom')
 var TurndownService = require('turndown')
-const { sendLogToClients } = require('./API/api')
-//const puppeteer = require('puppeteer');
+const events = require('./API/events.js');
+const { sendSSEUpdate } = events;
 
+//const puppeteer = require('puppeteer');
 
 
 async function crawlPage(baseURL, currentURL, pages, includeElement) { //   Contains parameters for the types of tags to scrape 
@@ -23,7 +24,12 @@ async function crawlPage(baseURL, currentURL, pages, includeElement) { //   Cont
         return pages
     }
 
-    sendLogToClients(`actively crawling ${currentURL}`)
+    console.log(`actively crawling ${currentURL}`)
+    try {
+        sendSSEUpdate(`actively crawling ${currentURL}`);
+    } catch (err) {
+        console.log(err)
+    }
 
     pages[normalizeCurrentURL] = {
         count: 1,

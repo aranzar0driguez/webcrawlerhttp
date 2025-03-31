@@ -17,7 +17,7 @@ const Body = () => {
         
         const callAPIfunc = async () => {
 
-            const result = await getData(requestInfo.arrayOfURLs, element)
+            const result = await getData(requestInfo.arrayOfURLs, element) //   This is what calls the crawls functio and appears to be (pending)
             if (isMounted) {
                 
                 setData(result)
@@ -89,7 +89,7 @@ const Body = () => {
                 <Grid display='flex' style={{justifyContent: 'right'}} sx={{size: {xs: 9, sm: 9, md: 7}}}>
                     
                     {/* <Grid item width={'90%'} spacing={5} > */}
-                        <Terminal apiData={terminalData}/>
+                        <Terminal apiData={terminalData}/> {}
                     {/* </Grid> */}
                 </Grid>
             </Grid >
