@@ -53,9 +53,14 @@ useEffect(() => {
 
     //  Listens for incoming messages from the SSE server 
     eventSource.onmessage = (event) => {
-        setData(event.data);
-        console.log("SSE Update:", event.data);
-        document.getElementById("log").innerHTML += event.data + "<br>";
+
+      if (event.data.includes("actively crawling") || event.data.includes("Hooray")) {
+        setData((prev) => prev + "\n" + event.data);
+      } else {
+        setData('Connection Established')
+      }
+
+      console.log("SSE Update:", event.data);
     };
 
     return () => {
@@ -88,7 +93,12 @@ useEffect(() => {
         {/**Real-time console terminal */}
         <CustomTabPanel value={value} index={0}>
             {consoleData  ? (
-                 <p id="log"></p>
+                 <pre style={{
+                    color: 'white',
+                    margin: '0',
+                    fontFamily: 'monospace',
+                    fontSize: '12px'
+                 }}>{consoleData}</pre>
 
             ) : (
               <Typography color="white" id="log">

@@ -26,7 +26,7 @@ async function crawlPage(baseURL, currentURL, pages, includeElement) { //   Cont
 
     console.log(`actively crawling ${currentURL}`)
     try {
-        sendSSEUpdate(`actively crawling ${currentURL}`);
+        sendSSEUpdate(`actively crawling ${currentURL}\n`);
     } catch (err) {
         console.log(err)
     }

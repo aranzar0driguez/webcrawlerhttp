@@ -36,8 +36,6 @@ const Terminal = ({apiData}) => {
                     {/**Terminal */}
 
 
-                    
-
                     {/**README.md */}
 
 
