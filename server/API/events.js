@@ -14,7 +14,7 @@ function sendSSEUpdate(message) {
         console.log('about to send a response');
         if (!client.res.finished) {
             client.res.write(`data: ${message}\n\n`);
-            console.log('successfully sent a response');
+            console.log('successfully sent an SSE response');
         } else {
             console.warn('Response already finished.');
         }
